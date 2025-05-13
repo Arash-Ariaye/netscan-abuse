@@ -13,6 +13,86 @@ Run this one-liner to install everything automatically:
 ```bash
 curl -sL https://raw.githubusercontent.com/Arash-Ariaye/netscan-abuse/refs/heads/main/install.sh | sudo bash && rm -f install.sh
 ```
+
+
+---
+
+
+## 📦 Usage | استفاده
+
+### 🔍 بررسی سرویس:
+
+```bash
+sudo systemctl status scan-detector
+```
+
+### 📜 دیدن لاگ‌ها:
+
+```bash
+cat /var/log/scan_detector.log
+```
+
+**نمونه لاگ:**
+
+```
+Tue May 13 18:05:00 2025: Blok shod: 102.193.214.0/24 dar Tue May 13 18:05:00 2025
+Wed May 14 18:05:00 2025: Baz shod: 102.193.214.0/24 dar Wed May 14 18:05:00 2025
+```
+
+### 🧪 تست با nmap:
+
+```bash
+nmap -sU 102.193.214.0/24  # اسکن UDP
+nmap -sS 102.193.214.0/24  # اسکن TCP SYN
+```
+
+### 🔒 بررسی iptables:
+
+```bash
+sudo iptables -L OUTPUT -v -n
+```
+
+---
+
+## ⚙️ Configuration | تنظیمات
+
+برای تغییر تنظیمات، فایل `scan_detector.py` رو ویرایش کن:
+
+| متغیر            | توضیح                         | پیش‌فرض                                                     |
+| :--------------- | :---------------------------- | :---------------------------------------------------------- |
+| `THRESHOLD`      | حداقل تعداد IP یکتا           | `8`                                                         |
+| `SCAN_WINDOW`    | پنجره شناسایی (ثانیه)         | `2`                                                         |
+| `INTERFACE`      | رابط شبکه                     | `eth0`                                                      |
+| `SERVER_IP`      | IP مبدا                       | `192.168.1.1`                                           |
+| `WHITELIST`      | لیست رنج‌های نادیده‌گرفته‌شده | `192.168.1.0/24`, `10.0.0.0/24`, `8.8.8.8/32`, `8.8.4.4/32` |
+| `BLOCK_DURATION` | مدت بلاک (ثانیه)              | `86400` (24 ساعت)                                           |
+
+---
+
+## 🛠️ Troubleshooting | عیب‌یابی
+
+### 🚫 سرویس اجرا نمی‌شه:
+
+```bash
+sudo systemctl status scan-detector
+sudo journalctl -u scan-detector
+```
+
+### 📄 لاگ ثبت نمی‌شه:
+
+```bash
+ls -l /var/log/scan_detector.log
+sudo /usr/local/bin/unblock.sh 102.193.214.0/24
+```
+
+### 🧠 مصرف بالای CPU:
+
+مقدار `time.sleep` در `scan_detector.py` رو افزایش بده:
+
+```python
+time.sleep(0.01)  # پیش‌فرض: 0.005
+```
+
 ---
 ## Features | ویژگی‌ها
 
