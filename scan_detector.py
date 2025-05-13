@@ -3,12 +3,24 @@ import subprocess
 import re
 import time
 import ipaddress
+import socket
 
 # Tanzimat
 THRESHOLD = 8  # Tedad minimum IP-haye mokhtalef dar yek range /24
 SCAN_WINDOW = 2  # Maximum baze zamani baraye tashkhis scan sari (sanie)
 INTERFACE = "eth0"  # Rabete shabake
-SERVER_IP = $(hostname -I | awk '{print $1}')  # IP server
+def get_local_ip():
+    """Gereftan IP mahalli ba estefade az socket"""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception as e:
+        print(f"Khataye gereftan IP: {e}")
+        exit(1)
+SERVER_IP = get_local_ip()  # IP server
 LOG_FILE = "/var/log/scan_detector.log"
 BLOCKED_RANGES = set()  # Baraye jelogiri az blok tekrari
 WHITELIST = {"192.168.1.0/24", "10.0.0.0/24", "8.8.8.8/32", "8.8.4.4/32"}  # List sefid
